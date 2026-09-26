@@ -2,14 +2,16 @@ import { useEffect, useState } from "react";
 import api, { getImageUrl } from "../services/api";
 import Header from "../components/Header";
 import { useCart } from "../context/CartContext";
-
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-
-  const { addToCart } = useCart();
+const [selectedProduct, setSelectedProduct] = useState(null);
+const [selectedQuantity, setSelectedQuantity] = useState(1);
+const [addedToBag, setAddedToBag] = useState(false);
+const { addToCart, cartItems } = useCart();
 
   useEffect(() => {
     const fetchStoreData = async () => {
@@ -64,7 +66,24 @@ const Home = () => {
 
           return matchesId || matchesName;
         });
+        const quantityInBag = selectedProduct
+  ? cartItems.find((item) => item.id === selectedProduct.id)?.quantity || 0
+  : 0;
 
+const remainingStock = selectedProduct
+  ? Math.max(0, Number(selectedProduct.stock) - quantityInBag)
+  : 0;
+const openProductPopup = (product) => {
+  setSelectedProduct(product);
+  setSelectedQuantity(1);
+  setAddedToBag(false);
+};
+
+const closeProductPopup = () => {
+  setSelectedProduct(null);
+  setSelectedQuantity(1);
+  setAddedToBag(false);
+};
   const chooseCategory = (categoryId) => {
     setSelectedCategory(categoryId);
 
@@ -343,7 +362,7 @@ const Home = () => {
                         {canAdd ? (
                           <button
                             type="button"
-                            onClick={() => addToCart(product)}
+                            onClick={() => openProductPopup(product)}
                             className="flex min-h-8 items-center justify-center gap-1 border border-ink px-2 py-2 text-[9px] font-semibold uppercase tracking-[0.08em] text-ink transition-colors hover:bg-ink hover:text-paper sm:min-h-0 sm:justify-start sm:border-0 sm:border-b sm:border-pine sm:px-0 sm:py-0.5 sm:text-[10px] sm:tracking-[0.18em] sm:text-pine sm:hover:bg-transparent sm:hover:text-clay"
                           >
                             Add to bag
@@ -392,6 +411,142 @@ const Home = () => {
           </div>
         </div>
       </section>
+     
+
+     {/* PRODUCT POPUP */}
+{selectedProduct && (
+  <div
+    className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/70 p-3 backdrop-blur-sm sm:p-6"
+    onMouseDown={(event) => {
+      if (event.target === event.currentTarget) closeProductPopup();
+    }}
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${selectedProduct.name} details`}
+      className="relative grid max-h-[90vh] w-full max-w-[780px] overflow-y-auto bg-paper shadow-2xl sm:grid-cols-2"
+    >
+      {/* Close */}
+      <button
+        type="button"
+        onClick={closeProductPopup}
+        aria-label="Close product details"
+        className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center bg-paper text-xl text-ink transition hover:bg-ink hover:text-paper"
+      >
+        ×
+      </button>
+
+      {/* Image */}
+      <div className="flex h-[230px] items-center justify-center bg-white p-5 sm:h-full sm:min-h-[430px]">
+        {selectedProduct.image ? (
+          <img
+            src={getImageUrl(selectedProduct.image)}
+            alt={selectedProduct.name}
+            className="h-full w-full object-contain"
+          />
+        ) : (
+          <span className="font-display text-2xl italic text-ink/30">
+            {selectedProduct.name}
+          </span>
+        )}
+      </div>
+
+      {/* Details */}
+      <div className="flex flex-col p-5 sm:p-8">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-clay">
+          {selectedProduct.category_name || "Fragrance"}
+        </p>
+
+        <h2 className="mt-3 font-display text-3xl leading-tight text-ink">
+          {selectedProduct.name}
+        </h2>
+
+        <p className="mt-3 font-display text-2xl text-clay">
+          ${Number(selectedProduct.price).toFixed(2)}
+        </p>
+
+        {selectedProduct.description && (
+          <p className="mt-5 whitespace-pre-line text-sm leading-6 text-mute">
+            {selectedProduct.description}
+          </p>
+        )}
+
+        <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-mute">
+          {selectedProduct.stock} available
+        </p>
+
+        {/* Quantity */}
+        <div className="mt-6">
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-ink">
+            Quantity
+          </p>
+
+          <div className="inline-flex h-11 items-center border border-line">
+            <button
+              type="button"
+              onClick={() =>
+                setSelectedQuantity((quantity) => Math.max(1, quantity - 1))
+              }
+              disabled={selectedQuantity <= 1}
+              aria-label="Decrease quantity"
+              className="h-full w-11 text-xl text-ink disabled:opacity-30"
+            >
+              −
+            </button>
+
+            <span className="w-10 text-center text-sm font-semibold tabular-nums">
+              {selectedQuantity}
+            </span>
+
+            <button
+              type="button"
+              onClick={() =>
+                setSelectedQuantity((quantity) =>
+                  Math.min(remainingStock, quantity + 1)
+                )
+              }
+              disabled={selectedQuantity >= remainingStock}
+              aria-label="Increase quantity"
+              className="h-full w-11 text-xl text-ink disabled:opacity-30"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        {/* Add to bag */}
+        <button
+          type="button"
+          onClick={() => {
+            addToCart(selectedProduct, selectedQuantity);
+            setAddedToBag(true);
+          }}
+          disabled={addedToBag || remainingStock === 0}
+          className="mt-7 min-h-12 w-full bg-ink px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-paper transition hover:bg-pine disabled:cursor-default disabled:bg-pine"
+        >
+          {addedToBag
+  ? "Added to your bag ✓"
+  : remainingStock === 0
+    ? "Maximum quantity in bag"
+    : "Add to bag →"}
+        </button>
+
+        {addedToBag && (
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-pine">Your fragrance is in the bag.</p>
+            <Link
+              to="/cart"
+              className="border-b border-ink pb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink"
+            >
+              View bag →
+            </Link>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
 
       {/* FOOTER */}
       <footer className="border-t border-paper/10 bg-ink text-paper">

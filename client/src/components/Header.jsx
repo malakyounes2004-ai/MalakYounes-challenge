@@ -15,7 +15,7 @@ const Header = () => {
       <div className="mx-auto flex h-[72px] max-w-[1200px] items-center justify-between px-5 sm:px-7">
 
         {/* Left */}
-        <div className="flex flex-1 items-center">
+        <div className="hidden flex-1 items-center sm:flex">
           <p className="hidden text-[10px] font-medium uppercase tracking-[0.24em] text-mute sm:block">
             Curated goods
           </p>
@@ -25,7 +25,7 @@ const Header = () => {
         <Link
           to="/"
           onClick={closeMenu}
-          className="group text-center"
+          className="group shrink-0 text-left sm:text-center"
         >
           <span className="font-display text-[1.7rem] font-medium italic leading-none tracking-tight text-ink transition-opacity group-hover:opacity-70 sm:text-[1.9rem]">
             Malak
@@ -37,8 +37,7 @@ const Header = () => {
         </Link>
 
         {/* Right */}
-        <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4">
-
+        <div className="flex items-center justify-end gap-2 sm:flex-1 sm:gap-4">
           <nav className="hidden items-center gap-7 lg:flex">
             <a
               href="/#categories"

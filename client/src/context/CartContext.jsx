@@ -2,33 +2,38 @@ import { createContext, useContext, useState } from "react";
 const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
-  const addToCart = (product) => {
-    setCartItems((currentItems) => {
-      const existingItem = currentItems.find(
-        (item) => item.id === product.id
+  const addToCart = (product, quantity = 1) => {
+  setCartItems((currentItems) => {
+    const existingItem = currentItems.find(
+      (item) => item.id === product.id
+    );
+
+    const availableStock = Number(product.stock);
+    const requestedQuantity = Math.max(1, Math.floor(Number(quantity) || 1));
+
+    if (existingItem) {
+      return currentItems.map((item) =>
+        item.id === product.id
+          ? {
+              ...item,
+              quantity: Math.min(
+                item.quantity + requestedQuantity,
+                availableStock
+              ),
+            }
+          : item
       );
-      if (existingItem) {
-        if (existingItem.quantity >= product.stock) {
-          return currentItems;
-        }
-        return currentItems.map((item) =>
-          item.id === product.id
-            ? {
-                ...item,
-                quantity: item.quantity + 1,
-              }
-            : item
-        );
-      }
-      return [
-        ...currentItems,
-        {
-          ...product,
-          quantity: 1,
-        },
-      ];
-    });
-  };
+    }
+
+    return [
+      ...currentItems,
+      {
+        ...product,
+        quantity: Math.min(requestedQuantity, availableStock),
+      },
+    ];
+  });
+};
   const removeFromCart = (productId) => {
     setCartItems((currentItems) =>
       currentItems.filter((item) => item.id !== productId)
