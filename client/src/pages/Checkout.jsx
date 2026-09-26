@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import api from "../services/api";
+import api, { getImageUrl } from "../services/api";
 
 const Checkout = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
@@ -331,7 +331,7 @@ const Checkout = () => {
 
                       {item.image ? (
                         <img
-                          src={`http://localhost:5000/uploads/${item.image}`}
+                          src={getImageUrl(item.image)}
                           alt={item.name}
                           className="h-full w-full object-cover"
                         />

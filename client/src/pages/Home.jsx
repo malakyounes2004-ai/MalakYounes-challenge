@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
-import api from "../services/api";
+import api, { getImageUrl } from "../services/api";
 import Header from "../components/Header";
 import { useCart } from "../context/CartContext";
 
-const imageUrl = (filename) =>
-  `http://localhost:5000/uploads/${filename}`;
 
 const Home = () => {
   const [categories, setCategories] = useState([]);
@@ -150,7 +148,7 @@ const Home = () => {
               <div className="relative flex h-[380px] flex-col overflow-hidden bg-white sm:h-[480px] lg:h-full lg:min-h-[600px]">
                 {featuredProduct.image ? (
                   <img
-                    src={imageUrl(featuredProduct.image)}
+                    src={getImageUrl(featuredProduct.image)}
                     alt={featuredProduct.name}
                     className="absolute inset-0 h-full w-full object-contain"
                   />
@@ -286,7 +284,7 @@ const Home = () => {
                   <div className="relative aspect-[4/5] overflow-hidden bg-white">
                     {product.image ? (
                       <img
-                        src={imageUrl(product.image)}
+                        src={getImageUrl(product.image)}
                         alt={product.name}
                         loading="lazy"
                         className="h-full w-full object-contain transition duration-500 ease-out group-hover:scale-[1.035]"

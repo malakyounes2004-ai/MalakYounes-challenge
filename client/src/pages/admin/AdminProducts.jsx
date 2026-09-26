@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../../services/api";
+import api, { getImageUrl } from "../../services/api";
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
@@ -571,7 +571,7 @@ const AdminProducts = () => {
                       <div className="relative h-28 w-24 shrink-0 overflow-hidden bg-plaster sm:h-32 sm:w-28">
                         {product.image ? (
                           <img
-                            src={`http://localhost:5000/uploads/${product.image}`}
+                            src={getImageUrl(product.image)}
                             alt={product.name}
                             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                           />

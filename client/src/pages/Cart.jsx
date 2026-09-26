@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-
+import { getImageUrl } from "../services/api";
 const Cart = () => {
   const {
     cartItems,
@@ -113,7 +113,7 @@ const Cart = () => {
                   <div className="aspect-[4/5] overflow-hidden bg-[#ddd4c6]">
                     {item.image ? (
                       <img
-                        src={`http://localhost:5000/uploads/${item.image}`}
+                        src={getImageUrl(item.image)}
                         alt={item.name}
                         className="h-full w-full object-cover transition duration-500 hover:scale-[1.03]"
                       />

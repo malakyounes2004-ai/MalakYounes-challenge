@@ -7,4 +7,14 @@ const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
 });
 
+export const getImageUrl = (image) => {
+  if (!image) return "";
+
+  if (/^https?:\/\//i.test(image)) {
+    return image;
+  }
+
+  return `${API_BASE_URL}/uploads/${image}`;
+}; 
+
 export default api;
